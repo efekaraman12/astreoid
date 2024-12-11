@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Terresquall;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class Player : MonoBehaviour
@@ -9,16 +10,17 @@ public class Player : MonoBehaviour
     private Bullet bulletPrefab;
 
     public float thrustSpeed = 1f;
-    public bool thrusting { get; private set; }
-
     public float rotationSpeed = 0.1f;
-    private float turnDirection;
 
     public float respawnDelay = 3f;
     public float respawnInvulnerability = 3f;
 
     public bool screenWrapping = true;
     private Bounds screenBounds;
+
+    // Joystick bağlantısı
+    public VirtualJoystick movementJoystick;
+    public VirtualJoystick fireJoystick;
 
     private void Awake()
     {
@@ -30,7 +32,8 @@ public class Player : MonoBehaviour
         GameObject[] boundaries = GameObject.FindGameObjectsWithTag("Boundary");
 
         // Disable all boundaries if screen wrapping is enabled
-        for (int i = 0; i < boundaries.Length; i++) {
+        for (int i = 0; i < boundaries.Length; i++)
+        {
             boundaries[i].SetActive(!screenWrapping);
         }
 
@@ -40,59 +43,52 @@ public class Player : MonoBehaviour
         screenBounds.Encapsulate(Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, 0f)));
     }
 
-    private void OnEnable()
-    {
-        // Turn off collisions for a few seconds after spawning to ensure the
-        // player has enough time to safely move away from asteroids
-        TurnOffCollisions();
-        Invoke(nameof(TurnOnCollisions), respawnInvulnerability);
-    }
-
     private void Update()
     {
-        thrusting = Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow);
-
-        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) {
-            turnDirection = 3f;
-        } else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) {
-            turnDirection = -3f;
-        } else {
-            turnDirection = 0f;
-        }
-
-        if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0)) {
+        // Ateş etme joystick veya tuşla
+        if (fireJoystick.axis.magnitude > 0.5f) // Ateş joystick'i bir yönde itilmişse
+        {
             Shoot();
         }
     }
 
     private void FixedUpdate()
     {
-        if (thrusting) {
-            rb.AddForce(transform.right * thrustSpeed);
-        }
+        // Hareket joystick'ten alınan eksen değerleri
+        Vector2 movementInput = movementJoystick.axis;
 
-        if (turnDirection != 0f) {
+        if (movementInput != Vector2.zero)
+        {
+            // Yönlendirme
+            float turnDirection = -movementInput.x; // Joystick yatay ekseni
             rb.AddTorque(rotationSpeed * turnDirection);
+
+            // İleri hareket
+            rb.AddForce(transform.right * movementInput.y * thrustSpeed); // Joystick dikey ekseni
         }
 
-        if (screenWrapping) {
+        if (screenWrapping)
+        {
             ScreenWrap();
         }
     }
 
     private void ScreenWrap()
     {
-        // Move to the opposite side of the screen if the player exceeds the bounds
-        if (rb.position.x > screenBounds.max.x + 0.5f) {
+        if (rb.position.x > screenBounds.max.x + 0.5f)
+        {
             rb.position = new Vector2(screenBounds.min.x - 0.5f, rb.position.y);
         }
-        else if (rb.position.x < screenBounds.min.x - 0.5f) {
+        else if (rb.position.x < screenBounds.min.x - 0.5f)
+        {
             rb.position = new Vector2(screenBounds.max.x + 0.5f, rb.position.y);
         }
-        else if (rb.position.y > screenBounds.max.y + 0.5f) {
+        else if (rb.position.y > screenBounds.max.y + 0.5f)
+        {
             rb.position = new Vector2(rb.position.x, screenBounds.min.y - 0.5f);
         }
-        else if (rb.position.y < screenBounds.min.y - 0.5f) {
+        else if (rb.position.y < screenBounds.min.y - 0.5f)
+        {
             rb.position = new Vector2(rb.position.x, screenBounds.max.y + 0.5f);
         }
     }
@@ -103,25 +99,16 @@ public class Player : MonoBehaviour
         bullet.Shoot(transform.right);
     }
 
-    private void TurnOffCollisions()
-    {
-        gameObject.layer = LayerMask.NameToLayer("Ignore Collisions");
-    }
-
-    private void TurnOnCollisions()
-    {
-        gameObject.layer = LayerMask.NameToLayer("Player");
-    }
-
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Asteroid"))
         {
+            // Çarpışma sonrası hızları sıfırla
             rb.velocity = Vector3.zero;
             rb.angularVelocity = 0f;
 
+            // Oyuncunun ölümünü tetikle
             GameManager.Instance.OnPlayerDeath(this);
         }
     }
-
 }
