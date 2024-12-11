@@ -68,7 +68,7 @@ public class Player : MonoBehaviour
     private void FixedUpdate()
     {
         if (thrusting) {
-            rb.AddForce(transform.up * thrustSpeed);
+            rb.AddForce(transform.right * thrustSpeed);
         }
 
         if (turnDirection != 0f) {
