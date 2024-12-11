@@ -22,6 +22,10 @@ public class Player : MonoBehaviour
     public VirtualJoystick movementJoystick;
     public VirtualJoystick fireJoystick;
 
+    // Ateş etme zamanlaması
+    public float fireCooldown = 0.5f; // Her ateş arasındaki minimum süre (saniye)
+    private float lastFireTime;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -46,9 +50,10 @@ public class Player : MonoBehaviour
     private void Update()
     {
         // Ateş etme joystick veya tuşla
-        if (fireJoystick.axis.magnitude > 0.5f) // Ateş joystick'i bir yönde itilmişse
+        if (fireJoystick.axis.magnitude > 0.5f && Time.time >= lastFireTime + fireCooldown)
         {
             Shoot();
+            lastFireTime = Time.time; // Son ateş zamanını güncelle
         }
     }
 

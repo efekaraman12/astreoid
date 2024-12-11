@@ -1120,6 +1120,7 @@ MonoBehaviour:
   screenWrapping: 1
   movementJoystick: {fileID: 1095569695}
   fireJoystick: {fileID: 371642364}
+  fireCooldown: 0.25
 --- !u!1 &556392472
 GameObject:
   m_ObjectHideFlags: 0
