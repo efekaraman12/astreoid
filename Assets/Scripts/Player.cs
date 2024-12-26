@@ -109,6 +109,9 @@ public class Player : MonoBehaviour
     {
         Bullet bullet = Instantiate(bulletPrefab, transform.position, transform.rotation);
         bullet.Shoot(transform.right);
+
+        // Ateş sesini çal
+        GameManager.Instance.PlayShootSound();
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
