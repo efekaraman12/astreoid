@@ -19,8 +19,8 @@ public class Player : MonoBehaviour
     private Bounds screenBounds;
 
     // Joystick bağlantısı
-    public VirtualJoystick movementJoystick;
-    public VirtualJoystick fireJoystick;
+    [SerializeField] private Joystick movementJoystick;
+    [SerializeField] private Joystick fireJoystick;
 
     // Ateş etme zamanlaması
     public float fireCooldown = 0.5f; // Her ateş arasındaki minimum süre (saniye)
@@ -49,27 +49,34 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
-        // Ateş etme joystick veya tuşla
-        if (fireJoystick.axis.magnitude > 0.5f && Time.time >= lastFireTime + fireCooldown)
+        // Ateş kontrolü
+        if (fireJoystick != null && fireJoystick.Direction.magnitude > 0)
         {
-            Shoot();
-            lastFireTime = Time.time; // Son ateş zamanını güncelle
+            // Ateş etme zamanlaması kontrolü
+            if (Time.time >= lastFireTime + fireCooldown)
+            {
+                Shoot();
+                lastFireTime = Time.time;
+            }
         }
     }
 
     private void FixedUpdate()
     {
-        // Hareket joystick'ten alınan eksen değerleri
-        Vector2 movementInput = movementJoystick.axis;
+        if (movementJoystick == null) return;
 
-        if (movementInput != Vector2.zero)
+        // Movement input processing
+        Vector2 movementInput = movementJoystick.Direction;
+
+        if (movementInput.magnitude > 0)
         {
-            // Yönlendirme
-            float turnDirection = -movementInput.x; // Joystick yatay ekseni
+            // Rotation
+            float turnDirection = -movementInput.x;
             rb.AddTorque(rotationSpeed * turnDirection);
 
-            // İleri hareket
-            rb.AddForce(transform.right * movementInput.y * thrustSpeed); // Joystick dikey ekseni
+            // Forward movement - using vertical input for thrust
+            float thrustInput = Mathf.Max(0, movementInput.y); // Only allow forward thrust
+            rb.AddForce(transform.right * thrustInput * thrustSpeed);
         }
 
         if (screenWrapping)
