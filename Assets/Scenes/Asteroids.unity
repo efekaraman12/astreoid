@@ -6347,8 +6347,8 @@ MonoBehaviour:
   scoreText: {fileID: 1159035112}
   livesText: {fileID: 2013675850}
   musicAudioSource: {fileID: 1031442194}
-  sfxAudioSource: {fileID: 0}
-  backgroundMusic: {fileID: 0}
+  sfxAudioSource: {fileID: 1031442193}
+  backgroundMusic: {fileID: 8300000, guid: 4369e71ed74e05c41bf5e1613e1fbc31, type: 3}
   shootSound: {fileID: 8300000, guid: 4cc26e99241439c41a224135d8ea0947, type: 3}
   explosionSound: {fileID: 0}
 --- !u!82 &1031442193
@@ -6363,7 +6363,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 4cc26e99241439c41a224135d8ea0947, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.506
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -6457,9 +6457,9 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 4369e71ed74e05c41bf5e1613e1fbc31, type: 3}
+  m_audioClip: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.539
   m_Pitch: 1
   Loop: 1
   Mute: 0
